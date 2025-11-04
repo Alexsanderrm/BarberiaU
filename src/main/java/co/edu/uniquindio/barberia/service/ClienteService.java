@@ -22,15 +22,16 @@ public class ClienteService {
         if (repo.existsByDocumentoOrTelefono(dto.documento(), dto.telefono())) {
             throw new IllegalArgumentException("Cliente ya existe (documento o teléfono)");
         }
-        var c = Cliente.builder()
+
+        Cliente cliente = Cliente.builder()
                 .nombre(dto.nombre())
                 .documento(dto.documento())
                 .telefono(dto.telefono())
                 .build();
-        return repo.save(c);
+
+        return repo.save(cliente);
     }
 
-    // ✅ Nuevo método para listar todos los clientes
     @Transactional(readOnly = true)
     public List<Cliente> listar() {
         return repo.findAll();

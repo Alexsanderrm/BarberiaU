@@ -1,5 +1,6 @@
 package co.edu.uniquindio.barberia.api.controller;
 
+import co.edu.uniquindio.barberia.api.dto.ActualizarDisponibilidadDTO;
 import co.edu.uniquindio.barberia.api.dto.CrearBarberoDTO;
 import co.edu.uniquindio.barberia.api.dto.HorarioDTO;
 import co.edu.uniquindio.barberia.domain.Barbero;
@@ -17,49 +18,60 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/barberos")
 public class BarberoController {
-    private final BarberoService service;
-    private final CitaRepo citaRepo;                                // <-- inyecta el repo
 
+    private final BarberoService service;
+    private final CitaRepo citaRepo;
 
     public BarberoController(BarberoService service, CitaRepo citaRepo) {
         this.service = service;
         this.citaRepo = citaRepo;
     }
 
-    // Comprobación rápida de que el controlador está cargado
     @GetMapping("/ping")
     public String ping() {
         return "barberos-ok";
     }
 
-    // Crear barbero
+    // POST /api/barberos
     @PostMapping
     public ResponseEntity<Barbero> crear(@Valid @RequestBody CrearBarberoDTO dto) {
         return ResponseEntity.ok(service.crear(dto));
     }
 
-    // Listar barberos (útil para ver IDs)
+    // GET /api/barberos
     @GetMapping
     public List<Barbero> listar() {
         return service.listar();
     }
 
-    // Agregar un horario al barbero {id}
+    // POST /api/barberos/{id}/horarios
     @PostMapping("/{id}/horarios")
-    public ResponseEntity<HorarioBarbero> agregarHorario(@PathVariable Long id,
-                                                         @Valid @RequestBody HorarioDTO dto) {
+    public ResponseEntity<HorarioBarbero> agregarHorario(
+            @PathVariable Long id,
+            @Valid @RequestBody HorarioDTO dto) {
         return ResponseEntity.ok(service.agregarHorario(id, dto));
     }
-    // GET /api/barberos/{id}/agenda?dia=2025-09-22
+
+    // PUT /api/barberos/disponibilidad
+    @PutMapping("/disponibilidad")
+    public ResponseEntity<Barbero> actualizarDisponibilidad(
+            @Valid @RequestBody ActualizarDisponibilidadDTO dto) {
+        return ResponseEntity.ok(service.actualizarDisponibilidad(dto));
+    }
+
+    // GET /api/barberos/{id}/agenda?dia=2025-11-03
     @GetMapping("/{id}/agenda")
-    public ResponseEntity<?> agenda(@PathVariable Long id,
-                                    @RequestParam LocalDate dia) {  // Spring parsea 'YYYY-MM-DD'
+    public ResponseEntity<?> consultarAgenda(
+            @PathVariable Long id,
+            @RequestParam LocalDate dia) {
+
         LocalDateTime desde = dia.atStartOfDay();
         LocalDateTime hasta = dia.plusDays(1).atStartOfDay().minusSeconds(1);
 
         var citas = citaRepo.findByBarberoIdAndFechaHoraInicioBetweenOrderByFechaHoraInicioAsc(
                 id, desde, hasta
         );
+
         return ResponseEntity.ok(citas);
     }
 }

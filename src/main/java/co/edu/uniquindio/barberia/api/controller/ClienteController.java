@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/clientes") // <-- base path correcto
+@RequestMapping("/api/clientes")
 public class ClienteController {
 
     private final ClienteService service;
@@ -19,18 +19,19 @@ public class ClienteController {
         this.service = service;
     }
 
-    @PostMapping // <-- método POST sin paths extra
+    // POST /api/clientes
+    @PostMapping
     public ResponseEntity<Cliente> crear(@Valid @RequestBody CrearClienteDTO dto) {
         return ResponseEntity.ok(service.crear(dto));
     }
 
-    // ✅ Nuevo método GET para listar todos los clientes
+    // GET /api/clientes
     @GetMapping
     public ResponseEntity<List<Cliente>> listar() {
         return ResponseEntity.ok(service.listar());
     }
 
-    // (opcional) para probar rápido en el navegador:
+    // GET /api/clientes/ping
     @GetMapping("/ping")
     public String ping() {
         return "clientes-ok";
